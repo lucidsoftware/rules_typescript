@@ -72,6 +72,12 @@ def create_tsconfig(ctx, files, srcs,
 
     node_modules_mappings = []
     if (hasattr(ctx.attr, "node_modules")):
+      # print(ctx.label)
+      # print([
+      #     ctx.attr.node_modules.label.workspace_root,
+      #     ctx.attr.node_modules.label.package,
+      #     "node_modules",
+      #     "*"])
       node_modules_mappings.append("/".join([p for p in [
           ctx.attr.node_modules.label.workspace_root,
           ctx.attr.node_modules.label.package,
@@ -123,10 +129,12 @@ def create_tsconfig(ctx, files, srcs,
       "workspaceName": ctx.workspace_name,
       "target": str(ctx.label),
       "package": ctx.label.package,
-      "tsickle": tsickle_externs != None,
+      "tsickle": True,
+      "googmodule": True,
+      "transformTypesToClosure": True,
       "tsickleGenerateExterns": getattr(ctx.attr, "generate_externs", True),
       "tsickleExternsPath": tsickle_externs.path if tsickle_externs else "",
-      "untyped": not getattr(ctx.attr, "tsickle_typed", False),
+      "untyped": True,
       "typeBlackListPaths": [f.path for f in type_blacklisted_declarations],
       # This is overridden by first-party javascript/typescript/tsconfig.bzl
       "ignoreWarningPaths": [],

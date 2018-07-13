@@ -48,7 +48,9 @@ def _compile_action(ctx, inputs, outputs, tsconfig_file, node_opts, description 
       action_inputs += ctx.attr.tsconfig[TsConfigInfo].deps
 
   # Pass actual options for the node binary in the special "--node_options" argument.
-  arguments = ["--node_options=%s" % opt for opt in node_opts]
+  arguments = ["--node_options=%s" % opt for opt in node_opts + [
+    # "--inspect-brk"
+    ]]
   # One at-sign makes this a params-file, enabling the worker strategy.
   # Two at-signs escapes the argument so it's passed through to tsc_wrapped
   # rather than the contents getting expanded.

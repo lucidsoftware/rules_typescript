@@ -13,6 +13,9 @@ import {BazelOptions, parseTsconfig, resolveNormalizedPath} from './tsconfig';
 import {fixUmdModuleDeclarations} from './umd_module_declaration_transform';
 import {debug, log, runAsWorker, runWorkerLoop} from './worker';
 
+// console.log('TS VERSION:', ts.version);
+// console.log('TS PATH:', require.resolve('typescript'));
+
 export function main(args: string[]) {
   if (runAsWorker(args)) {
     log('Starting TypeScript compiler persistent worker...');
@@ -52,6 +55,17 @@ function runOneBuild(
         'Impossible state: if parseTsconfig returns no errors, then parsed should be non-null');
   }
   const {options, bazelOpts, files, disabledTsetseRules} = parsed;
+  options.module = ts.ModuleKind.CommonJS;
+  // options.target = ts.ScriptTarget.ES2017;
+  // options.traceResolution = true;
+  if (options.paths && !options.paths['goog:*']) {
+    options.paths['goog:*'] = [
+        'external/closure_types/google-closure-library-modules/a/*',
+        'external/closure_types/google-closure-library-modules/b/*',
+    ];
+  }
+  // console.log(JSON.stringify(options));
+  // console.log(JSON.stringify(bazelOpts));
 
   // Reset cache stats.
   fileCache.resetStats();
