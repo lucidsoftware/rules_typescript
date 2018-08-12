@@ -48,6 +48,9 @@ export interface BazelOptions {
   /** Write generated externs to the given path. */
   tsickleExternsPath: string;
 
+  /** If true, disable the auto quoting feature of tsickle. */
+  tsickleDisableAutoQuoting?: boolean;
+
   /** Paths of declarations whose types must not appear in result .d.ts. */
   typeBlackListPaths: string[];
 
@@ -289,6 +292,9 @@ export function parseTsconfig(
           bazelOpts.suppressTsconfigOverrideWarnings ||
           userConfig.bazelOptions.suppressTsconfigOverrideWarnings;
       bazelOpts.tsickle = bazelOpts.tsickle || userConfig.bazelOptions.tsickle;
+      bazelOpts.tsickleDisableAutoQuoting =
+          bazelOpts.tsickleDisableAutoQuoting ||
+          userConfig.bazelOptions.tsickleDisableAutoQuoting;
       bazelOpts.googmodule =
           bazelOpts.googmodule || userConfig.bazelOptions.googmodule;
     }

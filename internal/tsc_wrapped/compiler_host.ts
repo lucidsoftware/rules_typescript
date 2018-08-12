@@ -80,6 +80,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
   addDtsClutzAliases: boolean;
   isJsTranspilation: boolean;
   options: BazelTsOptions;
+  disableAutoQuoting?: boolean;
   host: ts.ModuleResolutionHost = this;
 
   constructor(
@@ -120,6 +121,7 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     this.typeBlackListPaths = new Set(bazelOpts.typeBlackListPaths);
     this.transformDecorators = bazelOpts.tsickle;
     this.transformTypesToClosure = bazelOpts.tsickle;
+    this.disableAutoQuoting = bazelOpts.tsickleDisableAutoQuoting;
     this.addDtsClutzAliases = bazelOpts.addDtsClutzAliases;
     this.isJsTranspilation = Boolean(bazelOpts.isJsTranspilation);
   }
