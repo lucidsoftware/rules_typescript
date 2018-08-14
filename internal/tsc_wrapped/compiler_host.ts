@@ -279,9 +279,14 @@ export class CompilerHost implements ts.CompilerHost, tsickle.TsickleHost {
     const escape = (c: string) => {
       return '$' + c.charCodeAt(0).toString(16);
     };
-    const moduleName = importPath.replace(/^[^a-zA-Z_/]/, escape)
-                           .replace(/[^a-zA-Z_0-9_/]/g, escape)
-                           .replace(/\//g, '.');
+    const moduleName = importPath.replace(/^[^a-zA-Z_/]/, '_')
+    .replace(/[^a-zA-Z_0-9_/.]/g, '_')
+    .replace(/\//g, '.')
+    .replace(/lucid\.cake\.node_modules\.(.*?([^.]+))\.\2$/, '$1')
+    .replace(/lucid\.cake\.node_modules\./, '')
+    .replace(/lucid\.external\.closure_types\.google_closure_library_modules\.[ab]\./, '')
+    .replace(/\.index$/, '')
+    .replace(/lucid\.cake\.app\.webroot\.ts\./, '_lucid.');
     return moduleName;
   }
 
