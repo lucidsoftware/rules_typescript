@@ -53,6 +53,7 @@ COMMON_ATTRIBUTES = dict(BASE_ATTRIBUTES, **{
     "_additional_d_ts": attr.label_list(
         allow_files = True,
     ),
+    "skip_devmode": attr.bool(default = False),
 })
 
 COMMON_OUTPUTS = {
@@ -300,9 +301,10 @@ def compile_ts(
 
     # Do not produce declarations in ES6 mode, tsickle cannot produce correct
     # .d.ts (or even errors) from the altered Closure-style JS emit.
-    tsconfig_es6["compilerOptions"]["declaration"] = False
-    tsconfig_es6["compilerOptions"].pop("declarationDir")
-    outputs = transpiled_closure_js + tsickle_externs
+    if not ctx.attr.skip_devmode:
+        tsconfig_es6["compilerOptions"]["declaration"] = False
+        tsconfig_es6["compilerOptions"].pop("declarationDir")
+    outputs = transpiled_closure_js + tsickle_externs + (gen_declarations if ctx.attr.skip_devmode else [])
 
     node_profile_args = []
     if perf_trace and has_sources:
@@ -345,7 +347,7 @@ def compile_ts(
         devmode_manifest = ctx.actions.declare_file(ctx.label.name + ".es5.MF")
         tsconfig_json_es5 = ctx.actions.declare_file(ctx.label.name + "_es5_tsconfig.json")
         outputs = (
-            transpiled_devmode_js + gen_declarations + [devmode_manifest]
+            transpiled_devmode_js + [devmode_manifest] + ([] if ctx.attr.skip_devmode else gen_declarations)
         )
         tsconfig_es5 = tsc_wrapped_tsconfig(
             ctx,
@@ -355,6 +357,11 @@ def compile_ts(
             devmode_manifest = devmode_manifest.path,
             allowed_deps = allowed_deps,
         )
+
+        if ctx.attr.skip_devmode:
+            tsconfig_es5["compilerOptions"]["declaration"] = False
+            tsconfig_es5["compilerOptions"].pop("declarationDir")
+
         node_profile_args = []
         if perf_trace:
             perf_trace_file = ctx.actions.declare_file(ctx.label.name + ".es5.trace")
@@ -372,7 +379,8 @@ def compile_ts(
             ]
             outputs.append(profile_file)
 
-            files_depsets.append(depset([perf_trace_file, profile_file]))
+            if not ctx.attr.skip_devmode:
+                files_depsets.append(depset([perf_trace_file, profile_file]))
 
         ctx.actions.write(output = tsconfig_json_es5, content = json_marshal(
             tsconfig_es5,
