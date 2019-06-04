@@ -292,7 +292,22 @@ function emitWithTsickle(
     for (const sf of compilationTargets) {
       perfTrace.wrap(`emit ${sf.fileName}`, () => {
         emitResults.push(optTsickle.emitWithTsickle(
-            program, compilerHost, compilerHost, options, sf));
+            program, compilerHost, compilerHost, options, sf, undefined, undefined, undefined, {
+              beforeTs: [],
+              afterTs: [(context: ts.TransformationContext) => {
+                const visit: ts.Visitor = (node: ts.Node) => {
+                  if (ts.isModifier(node) && node.kind === ts.SyntaxKind.StaticKeyword) {
+                    const newNode = ts.createModifier(ts.SyntaxKind.StaticKeyword);
+                    ts.addSyntheticLeadingComment(newNode, ts.SyntaxKind.MultiLineCommentTrivia, '* @nocollapse ');
+                    return newNode;
+                  } else {
+                    return ts.visitEachChild(node, visit, context);
+                  }
+                };
+
+                return node => ts.visitNode(node, visit);
+              }],
+            }));
       });
     }
   });
