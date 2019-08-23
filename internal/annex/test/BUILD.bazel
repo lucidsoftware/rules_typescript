@@ -1,0 +1,23 @@
+load("//internal/annex:ts_library.bzl", "ts_library")
+load("//internal/annex:fake_runtime.bzl", "fake_runtime")
+
+
+# ts_config(
+#     name = "tsconfig",
+#     src = "tsconfig.json",
+#     deps = [],
+# )
+
+
+ts_library(
+    name = "test",
+    srcs = ["test.ts", "foo.ts"],
+    # tsconfig = ":tsconfig",
+    deps = [],
+)
+
+fake_runtime(
+    name = "dev",
+    ts_deps = [":test"],
+    # entry_points = ["test.js"],
+)

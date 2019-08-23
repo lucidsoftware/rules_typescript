@@ -1,0 +1,12 @@
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+nodejs_binary(
+    name = "tsc_unwrapped",
+    data = ["@npm//@bazel/typescript"],
+    entry_point = "./tsc_unwrapped.js",
+    install_source_map_support = False,
+    visibility = ["//visibility:public"],
+    # templated_args = ["--node_options=--expose-gc"],
+)
+
+exports_files(["tsc_unwrapped.js"])
